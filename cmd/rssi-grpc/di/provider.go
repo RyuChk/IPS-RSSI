@@ -1,7 +1,7 @@
 package di
 
 import (
-	grpcProvide "github.com/RyuChk/wire-provider/grpc/provider"
+	grpcProvide "git.cie.com/ips/wire-provider/grpc/provider"
 	"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/internal/handler"
 	"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/server"
 	v1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"

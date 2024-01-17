@@ -4,6 +4,8 @@ GO_FILES = $(shell find . -name \*.go)
 GO_BUILDFLAG ?= -v trimpath$(if $(GO_TAGS), -tags $(GO_TAGS),)
 GO_TESTFLAGS ?= -tags "test$(if $)"
 GOTESTFLAGS ?= -tags "test$(if $(GO_TAGS),$(comma)$(GO_TAGS),)" -short -race
+GOPRIVATE=*.cie.com
+GOINSECURE=*
 
 all: generate build
 
@@ -29,6 +31,9 @@ generate: pregenerate
 pregenerate:
 	@printf \\e[1m"Install dependency"\\e[0m\\n
 	@$(GO) install github.com/golang/mock/mockgen@v1.6.0
+	@$(GO) get github.com/google/wire/cmd/wire@v0.5.0
+	@git config --global http.sslverify false
+	@git submodule update --remote
 
 test:
 	@printf \\e[1m"Run test"\\e[0m\\n
@@ -36,7 +41,7 @@ test:
 
 build: .bin/rssi-grpc
 
-go.sum: go.mod
+go.sum:
 	@printf \\e[1m"go mod tidy"\\e[0m\\n
 	@$(GO) mod tidy
 

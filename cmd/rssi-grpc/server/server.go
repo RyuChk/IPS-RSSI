@@ -1,8 +1,8 @@
 package server
 
 import (
-	wiregrpc "github.com/RyuChk/wire-provider/grpc"
-	"github.com/RyuChk/wire-provider/grpc/provider"
+	wiregrpc "git.cie.com/ips/wire-provider/grpc"
+	"git.cie.com/ips/wire-provider/grpc/provider"
 	"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/internal/handler"
 )
 

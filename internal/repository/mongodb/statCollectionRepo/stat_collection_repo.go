@@ -3,7 +3,7 @@ package statcollectionrepo
 import (
 	"context"
 
-	wiremongo "github.com/RyuChk/wire-provider/mongodb"
+	wiremongo "git.cie.com/ips/wire-provider/mongodb"
 	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/mongo"

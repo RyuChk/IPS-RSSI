@@ -1,8 +1,8 @@
 package config
 
 import (
-	wireminio "github.com/RyuChk/wire-provider/minio"
-	wiremongo "github.com/RyuChk/wire-provider/mongodb"
+	wireminio "git.cie.com/ips/wire-provider/minio"
+	wiremongo "git.cie.com/ips/wire-provider/mongodb"
 	"github.com/kelseyhightower/envconfig"
 )
 

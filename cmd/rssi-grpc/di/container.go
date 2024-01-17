@@ -1,6 +1,6 @@
 package di
 
-import wiregrpc "github.com/RyuChk/wire-provider/grpc"
+import wiregrpc "git.cie.com/ips/wire-provider/grpc"
 
 type Container struct {
 	server wiregrpc.Server

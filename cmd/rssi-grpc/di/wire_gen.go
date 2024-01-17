@@ -7,7 +7,7 @@
 package di
 
 import (
-	"github.com/RyuChk/wire-provider/grpc/provider"
+	"git.cie.com/ips/wire-provider/grpc/provider"
 	"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/internal/handler"
 	"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/server"
 	"github.com/ZecretBone/ips-rssi-service/internal/config"

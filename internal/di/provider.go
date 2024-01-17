@@ -1,8 +1,8 @@
 package di
 
 import (
-	wireminio "github.com/RyuChk/wire-provider/minio"
-	wiremongo "github.com/RyuChk/wire-provider/mongodb"
+	wireminio "git.cie.com/ips/wire-provider/minio"
+	wiremongo "git.cie.com/ips/wire-provider/mongodb"
 	"github.com/ZecretBone/ips-rssi-service/internal/config"
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/cache"
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/minio"

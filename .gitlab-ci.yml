@@ -1,0 +1,138 @@
+image: golang:1.21.4-bookworm 
+include:
+  - project: srv/ci-cd-templates
+    file:
+      - jobs/deploy-argocd.yaml
+
+.go-cache:
+  variables:
+      GOPATH: $CI_PROJECT_DIR/.go
+  cache:
+    paths:
+      - .go/pkg/mod/
+
+variables:
+  OUTPUT_NAME: __bin__/$CI_PROJECT_NAME
+  GOPRIVATE: "git.cie.com"
+  GOINSECURE: "*.cie.com"
+  SERVICE_NAME: rssi-service
+  SKIP_BUILD:
+    description: Skip build docker image
+    value: "false"
+  TAG_VERSION:
+    description: If skip build is set tag version is needed
+    value: "tag-version"
+
+stages:
+  - lint
+  - test
+  - build
+  - tag
+  - release
+
+lint:
+  image: golangci/golangci-lint:latest
+  stage: lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: "$CI_PIPELINE_SOURCE == \"push\" && ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^release\\//)"
+  extends: .go-cache
+  allow_failure: false
+  before_script:
+    - git config --global http.sslverify false
+  script:
+    - go mod tidy
+    - golangci-lint run --timeout=5m --issues-exit-code 0 --verbose --out-format code-climate:codequality.json,colored-line-number
+  artifacts:
+    reports:
+      codequality: codequality.json
+    paths:
+      - codequality.json
+
+tests:
+  stage: test
+  image: golangci/golangci-lint:latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: "$CI_PIPELINE_SOURCE == \"push\" && ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH =~ /^release\\//)"
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: never
+  before_script:
+    - git config --global http.sslverify false
+  script:
+    - go get -t ./...
+    - go install gotest.tools/gotestsum@latest
+    - go install github.com/boumenot/gocover-cobertura@latest
+    # run tests, create coverprofile, and create junit report
+    - gotestsum --junitfile report.xml --format testname -- -race -coverprofile=coverage.txt -covermode atomic ./...
+    # write coverage report
+    - gocover-cobertura < coverage.txt > coverage.xml
+    # extract coverage score
+    - go tool cover -func coverage.txt
+  coverage: '/total:.*\d+.\d+%/'
+  artifacts:
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      junit: report.xml
+
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.19.2-debug
+    entrypoint: [""]
+  before_script:
+    - | 
+      echo "$CI_REGISTRY_CA" >> /kaniko/ssl/certs/ca-certificates.crt
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}}" > /kaniko/.docker/config.json
+  script:
+    - |
+      tag=":$CI_COMMIT_SHORT_SHA"
+      echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+      echo "Building and shipping image to $CI_REGISTRY/ips/${SERVICE_NAME}${tag}"
+    - mkdir -p /kaniko/.docker
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "$CI_REGISTRY/ips/${SERVICE_NAME}${tag}"
+      --registry-certificate harbor.cie.com=/kaniko/ssl/certs/ca-certificates.crt
+      
+  rules:
+    - if: $SKIP_BUILD == "true"
+      when: never
+    - if: $CI_COMMIT_BRANCH =~ /^(dev|develop|main)$/
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_COMMIT_TAG
+      when: never
+
+tag: 
+  stage: tag
+  image: docker:24.0.5
+  only: [tags]
+  services:
+    - docker:24.0.5-dind
+  script:
+    - docker pull "$CI_REGISTRY/ips/${SERVICE_NAME}:${CI_COMMIT_SHORT_SHA}"
+    - docker tag "$CI_REGISTRY/ips/${SERVICE_NAME}:${CI_COMMIT_SHORT_SHA}" "$CI_REGISTRY/ips/${SERVICE_NAME}:${CI_COMMIT_TAG}"
+    - docker push "$CI_REGISTRY/ips/${SERVICE_NAME}:${CI_COMMIT_TAG}"
+
+release:
+  stage: release
+  extends:
+    - .deploy-argo
+  image: ubuntu:22.04
+  variables:
+    NAMESPACE: development
+    AUTHOR: $CI_COMMIT_AUTHOR
+    PROJECT_PATH: projects/ips-rssi/vars/vars.json
+    GIT_REMOTE: https://project_${CI_PROJECT_ID}_bot:${ARGO_PUSH_TOKEN}@${CI_SERVER_HOST}/srv/argocd.git
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(dev|develop|main)$/
+    - if: $CI_PIPELINE_SOURCE == "web" && $SKIP_BUILD == "false"
+      when: manual
+    - if: $CI_COMMIT_TAG
+      when: manual
+    - if: $CI_PIPELINE_SOURCE == "web" && $SKIP_BUILD == "true"
+      when: on_success

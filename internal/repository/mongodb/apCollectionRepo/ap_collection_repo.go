@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	wiremongo "github.com/RyuChk/wire-provider/mongodb"
+	wiremongo "git.cie.com/ips/wire-provider/mongodb"
 	//"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
 	rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
 	"github.com/rs/zerolog/log"
