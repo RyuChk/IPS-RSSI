@@ -24,6 +24,7 @@ type MinioConfig struct {
 }
 
 type StatCollectionServiceConfig struct {
+	APsCount int `envconfig:"STAT_COLLECTION_AP_NUMBERS, required"`
 }
 
 type ApCollectionServiceConfig struct {

@@ -25,6 +25,7 @@ func ProvideStatCollectionService(statCollectionRepo statcollectionrepo.Reposito
 }
 
 func (s *StatCollectionService) AddSignalStatToDB(ctx context.Context, stat models.RSSIStatModel) error {
+	stat.CaculateAverageStrength()
 	if err := s.statCollectionRepo.InsertOne(ctx, stat); err != nil {
 		return err
 	}

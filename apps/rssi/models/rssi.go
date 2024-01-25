@@ -3,11 +3,11 @@ package models
 import "time"
 
 type RSSI struct {
-	SSID        string    `bson:"ssid"`         //APs SSID
-	MacAddress  string    `bson:"mac_address"`  // MAC Address of APs
-	Strength    float32   `bson:"strength"`     //RSSI signal strength in Dbm.
-	PollingRate int       `bson:"polling_rate"` //Polling in ms
-	CreatedAt   time.Time `bson:"created_at"`   //RSSI signal capture time
+	SSID           string      `bson:"ssid"`             //APs SSID
+	MacAddress     string      `bson:"mac_address"`      // MAC Address of APs
+	Strength       []float64   `bson:"strength"`         //RSSI signal strength in Dbm.
+	AverageStrenth float64     `bson:"average_strength"` //Average of all rssi strength
+	CreatedAt      []time.Time `bson:"created_at"`       //RSSI signal capture time
 }
 
 type Position struct {

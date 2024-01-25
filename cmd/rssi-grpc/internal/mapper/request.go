@@ -1,9 +1,10 @@
 package mapper
 
 import (
+	"time"
+
 	"github.com/ZecretBone/ips-rssi-service/apps/constants"
 	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
-	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models/request"
 	v1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
 	sharedv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/shared/rssi/v1"
 )
@@ -15,59 +16,38 @@ var (
 	}
 )
 
-func ToRSSIRequestModel(req *v1.CollectDataRequest) request.StatCollectionRequest {
-	output := request.StatCollectionRequest{
-		Signals: make([]models.RSSI, len(req.Signals)),
-		Position: models.Position{
-			X: float64(req.Position.X),
-			Y: float64(req.Position.Y),
-			Z: float64(req.Position.Z),
-		},
-		Duration:  int(req.Duration),
-		StartedAt: req.StartedAt.AsTime(),
-		EndedAt:   req.EndedAt.AsTime(),
-		CreatedAt: req.CreatedAt.AsTime(),
-	}
-
-	for i, v := range req.Signals {
-		output.Signals[i] = models.RSSI{
-			SSID:        v.Ssid,
-			MacAddress:  v.MacAddress,
-			Strength:    v.Strength,
-			PollingRate: int(v.PollingRate),
-			CreatedAt:   v.CreatedAt.AsTime(),
-		}
-	}
-
-	return output
-}
-
 func ToRSSIStatModel(req *v1.CollectDataRequest) models.RSSIStatModel {
 	output := models.RSSIStatModel{
 		RSSIInfo: make([]models.RSSI, len(req.Signals)),
 		DeviceInfo: models.DeviceInfo{
 			DeviceID: req.DeviceInfo.DeviceId,
-			Models:   req.DeviceInfo.Models,
+			Models:   req.DeviceInfo.Model,
 		},
 		Position: models.Position{
 			X: float64(req.Position.X),
 			Y: float64(req.Position.Y),
 			Z: float64(req.Position.Z),
 		},
-		Stage:     FromStatCollectionStateEnumToConstant[req.Stage],
-		Duration:  int(req.Duration),
-		StartedAt: req.StartedAt.AsTime(),
-		EndedAt:   req.EndedAt.AsTime(),
-		CreatedAt: req.CreatedAt.AsTime(),
+		Stage:       FromStatCollectionStateEnumToConstant[req.Stage],
+		Duration:    int(req.Duration),
+		PollingRate: int(req.PollingRate),
+		StartedAt:   req.StartedAt.AsTime(),
+		EndedAt:     req.EndedAt.AsTime(),
+		CreatedAt:   req.CreatedAt.AsTime(),
 	}
 
 	for i, v := range req.Signals {
+		temp_time := make([]time.Time, len(v.CreatedAt))
+
+		for j, t := range v.CreatedAt {
+			temp_time[j] = t.AsTime()
+		}
+
 		output.RSSIInfo[i] = models.RSSI{
-			SSID:        v.Ssid,
-			MacAddress:  v.MacAddress,
-			Strength:    v.Strength,
-			PollingRate: int(v.PollingRate),
-			CreatedAt:   v.CreatedAt.AsTime(),
+			SSID:       v.Ssid,
+			MacAddress: v.MacAddress,
+			Strength:   v.Strength,
+			CreatedAt:  temp_time,
 		}
 	}
 
