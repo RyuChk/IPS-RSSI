@@ -48,10 +48,9 @@ func initRSSIModel() models.RSSIStatModel {
 	return models.RSSIStatModel{
 		RSSIInfo: []models.RSSI{
 			{
-				SSID:        "AP-1",
-				Strength:    60.3,
-				PollingRate: 300,
-				CreatedAt:   currentTime.Add(time.Second),
+				SSID:      "AP-1",
+				Strength:  []float64{60.3},
+				CreatedAt: []time.Time{currentTime.Add(time.Second)},
 			},
 		},
 		DeviceInfo: models.DeviceInfo{
