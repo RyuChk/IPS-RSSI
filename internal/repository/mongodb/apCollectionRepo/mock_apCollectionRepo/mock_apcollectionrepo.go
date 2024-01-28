@@ -35,6 +35,21 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// GetValidAPsMap mocks base method.
+func (m *MockRepository) GetValidAPsMap(ctx context.Context) (map[string]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetValidAPsMap", ctx)
+	ret0, _ := ret[0].(map[string]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetValidAPsMap indicates an expected call of GetValidAPsMap.
+func (mr *MockRepositoryMockRecorder) GetValidAPsMap(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidAPsMap", reflect.TypeOf((*MockRepository)(nil).GetValidAPsMap), ctx)
+}
+
 // InsertOne mocks base method.
 func (m *MockRepository) InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error {
 	m.ctrl.T.Helper()

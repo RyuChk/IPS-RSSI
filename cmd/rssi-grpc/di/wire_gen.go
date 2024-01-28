@@ -28,13 +28,13 @@ func InitializeContainer() (*Container, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	repository := statcollectionrepo.ProvideStatCollectionRepo(connection)
+	repository := apcollectionrepo.ProvideApCollectionRepo(connection)
+	statcollectionrepoRepository := statcollectionrepo.ProvideStatCollectionRepo(connection)
 	statCollectionServiceConfig := config.ProvideStatCollectionServiceConfig()
-	service := statcollection.ProvideStatCollectionService(repository, statCollectionServiceConfig)
+	service := statcollection.ProvideStatCollectionService(repository, statcollectionrepoRepository, statCollectionServiceConfig)
 	statCollectionServiceServer := handler.ProvideStatServer(service)
-	apcollectionrepoRepository := apcollectionrepo.ProvideApCollectionRepo(connection)
 	apCollectionServiceConfig := config.ProvideApCollectionServiceConfig()
-	rssicollectionService := rssicollection.ProvideRssiCollectionService(apcollectionrepoRepository, apCollectionServiceConfig)
+	rssicollectionService := rssicollection.ProvideRssiCollectionService(repository, apCollectionServiceConfig)
 	coordinateCollectionServiceServer := handler.ProvideRssiServer(rssicollectionService)
 	handlers := &handler.Handlers{
 		Stat:       statCollectionServiceServer,

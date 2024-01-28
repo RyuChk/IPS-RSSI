@@ -21,6 +21,7 @@ const apCollectionName = "valid-ap-collection"
 type Repository interface {
 	InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error
 	IsExpectedApExisted(ctx context.Context, request *rssiv1.GetCoordinateRequest) (bool, error)
+	GetValidAPsMap(ctx context.Context) (map[string]string, error)
 }
 
 type ApCollectionRepo struct {

@@ -22,9 +22,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MapServiceClient interface {
-	// Get
 	GetFloorList(ctx context.Context, in *GetFloorListRequest, opts ...grpc.CallOption) (*GetFloorListResponse, error)
+	AddFloor(ctx context.Context, in *AddFloorRequest, opts ...grpc.CallOption) (*AddFloorResponse, error)
 	GetMapURL(ctx context.Context, in *GetMapURLRequest, opts ...grpc.CallOption) (*GetMapURLResponse, error)
+	AddMapURL(ctx context.Context, in *AddMapURLRequest, opts ...grpc.CallOption) (*AddMapURLResponse, error)
 }
 
 type mapServiceClient struct {
@@ -44,9 +45,27 @@ func (c *mapServiceClient) GetFloorList(ctx context.Context, in *GetFloorListReq
 	return out, nil
 }
 
+func (c *mapServiceClient) AddFloor(ctx context.Context, in *AddFloorRequest, opts ...grpc.CallOption) (*AddFloorResponse, error) {
+	out := new(AddFloorResponse)
+	err := c.cc.Invoke(ctx, "/ips.map.v1.MapService/AddFloor", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *mapServiceClient) GetMapURL(ctx context.Context, in *GetMapURLRequest, opts ...grpc.CallOption) (*GetMapURLResponse, error) {
 	out := new(GetMapURLResponse)
 	err := c.cc.Invoke(ctx, "/ips.map.v1.MapService/GetMapURL", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mapServiceClient) AddMapURL(ctx context.Context, in *AddMapURLRequest, opts ...grpc.CallOption) (*AddMapURLResponse, error) {
+	out := new(AddMapURLResponse)
+	err := c.cc.Invoke(ctx, "/ips.map.v1.MapService/AddMapURL", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +76,10 @@ func (c *mapServiceClient) GetMapURL(ctx context.Context, in *GetMapURLRequest, 
 // All implementations must embed UnimplementedMapServiceServer
 // for forward compatibility
 type MapServiceServer interface {
-	// Get
 	GetFloorList(context.Context, *GetFloorListRequest) (*GetFloorListResponse, error)
+	AddFloor(context.Context, *AddFloorRequest) (*AddFloorResponse, error)
 	GetMapURL(context.Context, *GetMapURLRequest) (*GetMapURLResponse, error)
+	AddMapURL(context.Context, *AddMapURLRequest) (*AddMapURLResponse, error)
 	mustEmbedUnimplementedMapServiceServer()
 }
 
@@ -70,8 +90,14 @@ type UnimplementedMapServiceServer struct {
 func (UnimplementedMapServiceServer) GetFloorList(context.Context, *GetFloorListRequest) (*GetFloorListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFloorList not implemented")
 }
+func (UnimplementedMapServiceServer) AddFloor(context.Context, *AddFloorRequest) (*AddFloorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddFloor not implemented")
+}
 func (UnimplementedMapServiceServer) GetMapURL(context.Context, *GetMapURLRequest) (*GetMapURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMapURL not implemented")
+}
+func (UnimplementedMapServiceServer) AddMapURL(context.Context, *AddMapURLRequest) (*AddMapURLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMapURL not implemented")
 }
 func (UnimplementedMapServiceServer) mustEmbedUnimplementedMapServiceServer() {}
 
@@ -104,6 +130,24 @@ func _MapService_GetFloorList_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MapService_AddFloor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddFloorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MapServiceServer).AddFloor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ips.map.v1.MapService/AddFloor",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MapServiceServer).AddFloor(ctx, req.(*AddFloorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MapService_GetMapURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMapURLRequest)
 	if err := dec(in); err != nil {
@@ -122,6 +166,24 @@ func _MapService_GetMapURL_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MapService_AddMapURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMapURLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MapServiceServer).AddMapURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ips.map.v1.MapService/AddMapURL",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MapServiceServer).AddMapURL(ctx, req.(*AddMapURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MapService_ServiceDesc is the grpc.ServiceDesc for MapService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,8 +196,16 @@ var MapService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MapService_GetFloorList_Handler,
 		},
 		{
+			MethodName: "AddFloor",
+			Handler:    _MapService_AddFloor_Handler,
+		},
+		{
 			MethodName: "GetMapURL",
 			Handler:    _MapService_GetMapURL_Handler,
+		},
+		{
+			MethodName: "AddMapURL",
+			Handler:    _MapService_AddMapURL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
