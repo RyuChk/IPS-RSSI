@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 //go:generate mockgen -source=ap_collection_repo.go -destination=mock_apCollectionRepo/mock_apcollectionrepo.go -package=mock_apcollectionrepo
@@ -74,4 +75,43 @@ func (r *ApCollectionRepo) IsExpectedApExisted(ctx context.Context, request *rss
 
 	// Matching document found
 	return true, nil
+}
+
+func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]string, error) {
+	// Build the filter to match names starting with "AP"
+	filter := bson.M{
+		"name": bson.M{
+			"$regex": "^AP",
+		},
+	}
+
+	// Specify the sorting criteria
+	sort := bson.D{
+		{"name", 1}, // Sort by name in ascending order
+	}
+
+	// Execute the find operation to get matching records and sort them
+	cursor, err := r.apCollection.Find(ctx, filter, options.Find().SetSort(sort))
+	if err != nil {
+		log.Error().Err(err).Msg("Error retrieving valid APs")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// Decode the results into a slice of YourAPStruct
+	var aps []rssiv1.RegisterApRequest
+	if err := cursor.All(ctx, &aps); err != nil {
+		log.Error().Err(err).Msg("Error decoding APs")
+		return nil, err
+	}
+
+	// Create a map to store the result
+	resultMap := make(map[string]string)
+
+	// Populate the map with mac_address as key and AP name as value
+	// for _, ap := range aps {
+	// 	resultMap[ap.MacAddress] = ap.Name
+	// }
+
+	return resultMap, nil
 }
