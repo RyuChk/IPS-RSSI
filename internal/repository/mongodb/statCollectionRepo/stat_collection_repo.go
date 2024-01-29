@@ -18,6 +18,7 @@ const statCollectionName = "signal-stat-collection"
 type Repository interface {
 	InsertOne(ctx context.Context, document models.RSSIStatModel) error
 	GetRSSIStats(ctx context.Context) ([]models.RSSIStatModel, error)
+	InsertMany(ctx context.Context, documents []models.RSSIDetailStatModel) error
 }
 
 type DataCollectionRepo struct {
@@ -39,6 +40,28 @@ func (r *DataCollectionRepo) InsertOne(ctx context.Context, document models.RSSI
 		return err
 	}
 	log.Debug().Msg("append stat to server")
+	return nil
+}
+
+func (r *DataCollectionRepo) InsertMany(ctx context.Context, documents []models.RSSIDetailStatModel) error {
+	if len(documents) == 0 {
+		return nil // No documents to insert
+	}
+
+	// Convert RSSIDetailStatModel documents to BSON documents
+	var bsonDocuments []interface{}
+	for _, doc := range documents {
+		bsonDocuments = append(bsonDocuments, doc)
+	}
+
+	// Use InsertMany to insert multiple documents
+	_, err := r.statCollection.InsertMany(ctx, bsonDocuments)
+	if err != nil {
+		log.Error().Err(err).Msg("Error inserting documents into the database")
+		return err
+	}
+
+	log.Debug().Msg("Appended stats to the database")
 	return nil
 }
 

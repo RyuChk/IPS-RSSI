@@ -19,7 +19,7 @@ type RSSIStatModel struct {
 }
 
 type RSSIDetailStatModel struct {
-	RSSI        []float32                 `bson:"rssi"`
+	RSSI        []float64                 `bson:"rssi"`
 	Model       string                    `bson:"model"`
 	X           float32                   `bson:"x"`
 	Y           float32                   `bson:"y"`

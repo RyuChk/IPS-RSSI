@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
 	"github.com/ZecretBone/ips-rssi-service/internal/config"
-	rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
+
+	//rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
 	apcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/apCollectionRepo"
 	statcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/statCollectionRepo"
+	trainstatcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/trainstatCollectionRepo"
 )
 
 type Service interface {
@@ -18,9 +21,10 @@ type Service interface {
 }
 
 type StatCollectionService struct {
-	apCollectionRepo   apcollectionrepo.Repository
-	statCollectionRepo statcollectionrepo.Repository
-	cfg                config.StatCollectionServiceConfig
+	apCollectionRepo        apcollectionrepo.Repository
+	statCollectionRepo      statcollectionrepo.Repository
+	trainstatCollectionRepo trainstatcollectionrepo.Repository
+	cfg                     config.StatCollectionServiceConfig
 }
 
 func ProvideStatCollectionService(apCollectionRepo apcollectionrepo.Repository, statCollectionRepo statcollectionrepo.Repository, cfg config.StatCollectionServiceConfig) Service {
@@ -35,16 +39,21 @@ func (s *StatCollectionService) AddSignalStatToDB(ctx context.Context, stats mod
 	stats.CaculateAverageStrength()
 
 	//convert to new struture
-	// apMap, err := s.apCollectionRepo.GetValidAPsMap(context.Background())
-	// if err != nil {
+	apMap, err := s.apCollectionRepo.GetValidAPsMap(context.Background())
+	if err != nil {
 
-	// }
+	}
 
-	//var responseObjects []rssiv1.GetStatDataResponse
+	rssiNewModel := mapRSSIStatModel(stats, apMap)
 
-	// if err := s.statCollectionRepo.InsertOne(ctx, stat); err != nil {
-	// 	return err
-	// }
+	if err := s.trainstatCollectionRepo.InsertMany(ctx, rssiNewModel); err != nil {
+		return err
+	}
+
+	if err := s.statCollectionRepo.InsertOne(ctx, stats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -67,56 +76,57 @@ func (s *StatCollectionService) GetSignalStatFromDB(ctx context.Context) error {
 	return nil
 }
 
-func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []rssiv1.GetStatDataResponse {
-	var result []rssiv1.GetStatDataResponse
+func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []models.RSSIDetailStatModel {
+	var result []models.RSSIDetailStatModel
 
 	var rssi = stat.RSSIInfo
+	timeStampMap := make(map[time.Time][]float64)
 
-	maxLen := 0
-
-	for _, ee := range rssi {
-		if _, ok := apMap[ee.MacAddress]; ok {
-			if len(ee.Strength) > maxLen {
-				maxLen = len(ee.Strength)
-			}
-		}
-	}
-
-	rssiArray := makeRSSIArray(maxLen, apMap)
-
-	for i, e := range rssi {
+	for _, e := range rssi {
 		if apName, ok := apMap[e.MacAddress]; ok {
-			if apIndex, exists := findAPIndex(apMap, apName); exists {
-				// Update the corresponding value in the rssi array
-				if i <= len(e.Strength)-1 {
-					rssiArray[i][apIndex] = e.Strength[i]
+			for i, j := range e.CreatedAt {
+				if _, ok := timeStampMap[j]; !ok {
+					timeStampMap[j] = makeRSSIArray(apMap)
+				}
+				if apIndex, exists := findAPIndex(apMap, apName); exists {
+					timeStampMap[j][apIndex] = e.Strength[i]
 				}
 			}
-
 		}
-
 	}
 
-	// for j,each := range rssi {
-	// 	var element rssiv1.GetStatDataResponse
-	// 	element.Rssi  = rssiArray[j]
-	// 	result = append(result, element)
-	// }
+	for j, eachRSSI := range timeStampMap {
+		var element models.RSSIDetailStatModel
+		element.RSSI = eachRSSI
+		element.Model = stat.DeviceInfo.Models
+		element.PollingRate = stat.PollingRate
+		element.Stage = stat.Stage
+		element.CreatedAt = j
+		result = append(result, element)
+	}
 
 	return result
 }
 
-func makeRSSIArray(max int, apMap map[string]string) [][]float64 {
-	var rssiArray [][]float64
-	eachArray := make([]float64, len(apMap))
-	for i := range rssiArray {
-		eachArray[i] = -99
-	}
+// func makeRSSIArray(max int, apMap map[string]string) [][]float64 {
+// 	var rssiArray [][]float64
+// 	eachArray := make([]float64, len(apMap))
+// 	for i := range rssiArray {
+// 		eachArray[i] = -99
+// 	}
 
-	for j := 0; j < max; j++ {
-		rssiArray = append(rssiArray, eachArray)
-	}
+// 	for j := 0; j < max; j++ {
+// 		rssiArray = append(rssiArray, eachArray)
+// 	}
 
+// 	return rssiArray
+// }
+
+func makeRSSIArray(apMap map[string]string) []float64 {
+	rssiArray := make([]float64, len(apMap))
+	for i := 0; i < len(rssiArray); i++ {
+		rssiArray[i] = -99
+	}
 	return rssiArray
 }
 
