@@ -18,6 +18,17 @@ type RSSIStatModel struct {
 	CreatedAt   time.Time                 `bson:"created_at"`
 }
 
+type RSSIDetailStatModel struct {
+	RSSI        []float64                 `bson:"rssi"`
+	Model       string                    `bson:"model"`
+	X           float32                   `bson:"x"`
+	Y           float32                   `bson:"y"`
+	Z           float32                   `bson:"z"`
+	CreatedAt   time.Time                 `bson:"created_at"`
+	PollingRate int                       `bson:"polling_rate"`
+	Stage       constants.CollectionStage `bson:"collection_stage"`
+}
+
 func (s *RSSIStatModel) CaculateAverageStrength() {
 	for i, v := range s.RSSIInfo {
 		var t float64

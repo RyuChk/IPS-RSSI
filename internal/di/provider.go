@@ -9,6 +9,7 @@ import (
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb"
 	apcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/apCollectionRepo"
 	statcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/statCollectionRepo"
+	trainstatcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/trainstatCollectionRepo"
 	rssicollection "github.com/ZecretBone/ips-rssi-service/internal/services/rssiCollection"
 	statcollection "github.com/ZecretBone/ips-rssi-service/internal/services/statCollection"
 	"github.com/google/wire"
@@ -25,6 +26,7 @@ var ProviderSet = wire.NewSet(
 	statcollection.ProvideStatCollectionService,
 	apcollectionrepo.ProvideApCollectionRepo,
 	rssicollection.ProvideRssiCollectionService,
+	trainstatcollectionrepo.ProvideTrainStatCollectionRepo,
 )
 
 var ConfigSet = wire.NewSet(
@@ -33,6 +35,7 @@ var ConfigSet = wire.NewSet(
 	config.ProvideCacheConfig,
 	config.ProvideStatCollectionServiceConfig,
 	config.ProvideApCollectionServiceConfig,
+	config.ProvideTrainstatCollectionServiceConfig,
 )
 
 type Locator struct {

@@ -26,6 +26,10 @@ func ProvideApCollectionServiceConfig() ApCollectionServiceConfig {
 	return provideConfig(ApCollectionServiceConfig{})
 }
 
+func ProvideTrainstatCollectionServiceConfig() TrainstatCollectionServiceConfig {
+	return provideConfig(TrainstatCollectionServiceConfig{})
+}
+
 func provideConfig[T any](cfg T) T {
 	envconfig.MustProcess("", &cfg)
 	return cfg
