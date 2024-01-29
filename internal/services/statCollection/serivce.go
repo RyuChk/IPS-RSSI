@@ -27,11 +27,12 @@ type StatCollectionService struct {
 	cfg                     config.StatCollectionServiceConfig
 }
 
-func ProvideStatCollectionService(apCollectionRepo apcollectionrepo.Repository, statCollectionRepo statcollectionrepo.Repository, cfg config.StatCollectionServiceConfig) Service {
+func ProvideStatCollectionService(apCollectionRepo apcollectionrepo.Repository, statCollectionRepo statcollectionrepo.Repository, trainstatCollectionRepo trainstatcollectionrepo.Repository, cfg config.StatCollectionServiceConfig) Service {
 	return &StatCollectionService{
-		apCollectionRepo:   apCollectionRepo,
-		statCollectionRepo: statCollectionRepo,
-		cfg:                cfg,
+		apCollectionRepo:        apCollectionRepo,
+		statCollectionRepo:      statCollectionRepo,
+		trainstatCollectionRepo: trainstatCollectionRepo,
+		cfg:                     cfg,
 	}
 }
 

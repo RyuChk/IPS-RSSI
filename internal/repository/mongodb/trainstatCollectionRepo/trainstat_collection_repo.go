@@ -25,7 +25,7 @@ type TrainDataCollectionRepo struct {
 	trainstatCollection *mongo.Collection
 }
 
-func ProvideStatCollectionRepo(conn wiremongo.Connection) Repository {
+func ProvideTrainStatCollectionRepo(conn wiremongo.Connection) Repository {
 	return &TrainDataCollectionRepo{
 		trainstatCollection: conn.Database().Collection(trainstatCollectionName),
 	}

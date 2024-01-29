@@ -10,6 +10,7 @@ import (
 	"github.com/ZecretBone/ips-rssi-service/internal/config"
 	mock_apcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/apCollectionRepo/mock_apCollectionRepo"
 	mock_statcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/statCollectionRepo/mock_statCollectionRepo"
+	mock_trainstatcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/trainstatCollectionRepo/mock_trainstatCollectionRepo"
 	statcollection "github.com/ZecretBone/ips-rssi-service/internal/services/statCollection"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/suite"
@@ -18,9 +19,10 @@ import (
 type StatCollectionServiceTestSuite struct {
 	suite.Suite
 
-	ctrl                   *gomock.Controller
-	mockStatCollectionRepo *mock_statcollectionrepo.MockRepository
-	mockAPCollectionRepo   *mock_apcollectionrepo.MockRepository // Add this line
+	ctrl                        *gomock.Controller
+	mockStatCollectionRepo      *mock_statcollectionrepo.MockRepository
+	mockAPCollectionRepo        *mock_apcollectionrepo.MockRepository // Add this line
+	mockTrainstatCollectionRepo *mock_trainstatcollectionrepo.MockRepository
 
 	statCollectionService statcollection.Service
 	timeLayout            string
@@ -45,6 +47,7 @@ func (s *StatCollectionServiceTestSuite) Init() {
 	s.statCollectionService = statcollection.ProvideStatCollectionService(
 		s.mockAPCollectionRepo,
 		s.mockStatCollectionRepo, // Assuming s.mockAPCollectionRepo is of type apcollectionrepo.Repository
+		s.mockTrainstatCollectionRepo,
 		config.ProvideStatCollectionServiceConfig(),
 	)
 
