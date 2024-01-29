@@ -35,11 +35,3 @@ func (s *StatV1Impl) CollectData(ctx context.Context, req *statv1.CollectDataReq
 	}
 	return &statv1.CollectDataResponse{}, nil
 }
-
-func (s *StatV1Impl) GetStatData(ctx context.Context, req *statv1.GetStatDataRequest) (*statv1.GetStatDataResponse, error) {
-
-	if err := s.statCollectionService.GetSignalStatFromDB(ctx); err != nil {
-		return nil, errorx.NewAPIError(http.StatusBadRequest, err.Error())
-	}
-	return &statv1.GetStatDataResponse{}, nil
-}

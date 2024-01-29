@@ -21,7 +21,6 @@ const apCollectionName = "valid-ap-collection"
 type Repository interface {
 	InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error
 	IsExpectedApExisted(ctx context.Context, request *rssiv1.GetCoordinateRequest) (bool, error)
-	GetValidAPsMap(ctx context.Context) (map[string]string, error)
 }
 
 type ApCollectionRepo struct {
@@ -37,7 +36,6 @@ func ProvideApCollectionRepo(conn wiremongo.Connection) Repository {
 func (r *ApCollectionRepo) InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error {
 
 	bson := bson.M{
-		"name":        request.Name,
 		"ssid":        request.Ssid,
 		"mac_address": request.MacAddress,
 	}
@@ -81,7 +79,6 @@ func (r *ApCollectionRepo) IsExpectedApExisted(ctx context.Context, request *rss
 
 func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]string, error) {
 	// Build the filter to match names starting with "AP"
-	log.Debug().Msg("show getting valid ap")
 	filter := bson.M{
 		"name": bson.M{
 			"$regex": "^AP",
@@ -112,9 +109,9 @@ func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]strin
 	resultMap := make(map[string]string)
 
 	// Populate the map with mac_address as key and AP name as value
-	for _, ap := range aps {
-		resultMap[ap.MacAddress] = ap.Name
-	}
+	// for _, ap := range aps {
+	// 	resultMap[ap.MacAddress] = ap.Name
+	// }
 
 	return resultMap, nil
 }
