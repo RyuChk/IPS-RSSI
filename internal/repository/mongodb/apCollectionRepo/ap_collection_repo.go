@@ -37,6 +37,7 @@ func ProvideApCollectionRepo(conn wiremongo.Connection) Repository {
 func (r *ApCollectionRepo) InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error {
 
 	bson := bson.M{
+		"name":        request.Name,
 		"ssid":        request.Ssid,
 		"mac_address": request.MacAddress,
 	}
