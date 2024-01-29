@@ -15,7 +15,6 @@ import (
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb"
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/apCollectionRepo"
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/statCollectionRepo"
-	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/trainstatCollectionRepo"
 	"github.com/ZecretBone/ips-rssi-service/internal/services/rssiCollection"
 	"github.com/ZecretBone/ips-rssi-service/internal/services/statCollection"
 	"github.com/google/wire"
@@ -29,14 +28,13 @@ func InitializeContainer() (*Container, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	repository := apcollectionrepo.ProvideApCollectionRepo(connection)
-	statcollectionrepoRepository := statcollectionrepo.ProvideStatCollectionRepo(connection)
-	trainstatcollectionrepoRepository := trainstatcollectionrepo.ProvideTrainStatCollectionRepo(connection)
+	repository := statcollectionrepo.ProvideStatCollectionRepo(connection)
 	statCollectionServiceConfig := config.ProvideStatCollectionServiceConfig()
-	service := statcollection.ProvideStatCollectionService(repository, statcollectionrepoRepository, trainstatcollectionrepoRepository, statCollectionServiceConfig)
+	service := statcollection.ProvideStatCollectionService(repository, statCollectionServiceConfig)
 	statCollectionServiceServer := handler.ProvideStatServer(service)
+	apcollectionrepoRepository := apcollectionrepo.ProvideApCollectionRepo(connection)
 	apCollectionServiceConfig := config.ProvideApCollectionServiceConfig()
-	rssicollectionService := rssicollection.ProvideRssiCollectionService(repository, apCollectionServiceConfig)
+	rssicollectionService := rssicollection.ProvideRssiCollectionService(apcollectionrepoRepository, apCollectionServiceConfig)
 	coordinateCollectionServiceServer := handler.ProvideRssiServer(rssicollectionService)
 	handlers := &handler.Handlers{
 		Stat:       statCollectionServiceServer,

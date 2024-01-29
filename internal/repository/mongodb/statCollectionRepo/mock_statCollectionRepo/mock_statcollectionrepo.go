@@ -35,35 +35,6 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetRSSIStats mocks base method.
-func (m *MockRepository) GetRSSIStats(ctx context.Context) ([]models.RSSIStatModel, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRSSIStats", ctx)
-	ret0, _ := ret[0].([]models.RSSIStatModel)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetRSSIStats indicates an expected call of GetRSSIStats.
-func (mr *MockRepositoryMockRecorder) GetRSSIStats(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRSSIStats", reflect.TypeOf((*MockRepository)(nil).GetRSSIStats), ctx)
-}
-
-// InsertMany mocks base method.
-func (m *MockRepository) InsertMany(ctx context.Context, documents []models.RSSIDetailStatModel) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertMany", ctx, documents)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// InsertMany indicates an expected call of InsertMany.
-func (mr *MockRepositoryMockRecorder) InsertMany(ctx, documents interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertMany", reflect.TypeOf((*MockRepository)(nil).InsertMany), ctx, documents)
-}
-
 // InsertOne mocks base method.
 func (m *MockRepository) InsertOne(ctx context.Context, document models.RSSIStatModel) error {
 	m.ctrl.T.Helper()
