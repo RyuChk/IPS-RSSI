@@ -39,7 +39,7 @@ func (r *DataCollectionRepo) InsertOne(ctx context.Context, document models.RSSI
 	if err != nil {
 		return err
 	}
-	log.Debug().Msg("append stat to server")
+	log.Debug().Msg("append one stat to server")
 	return nil
 }
 

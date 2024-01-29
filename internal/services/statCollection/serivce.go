@@ -8,6 +8,7 @@ import (
 
 	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
 	"github.com/ZecretBone/ips-rssi-service/internal/config"
+	"github.com/rs/zerolog/log"
 
 	//rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
 	apcollectionrepo "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/apCollectionRepo"
@@ -45,11 +46,16 @@ func (s *StatCollectionService) AddSignalStatToDB(ctx context.Context, stats mod
 
 	}
 
+	log.Debug().Msg("show1")
+
 	rssiNewModel := mapRSSIStatModel(stats, apMap)
+
+	log.Debug().Msg("show imany")
 
 	if err := s.trainstatCollectionRepo.InsertMany(ctx, rssiNewModel); err != nil {
 		return err
 	}
+	log.Debug().Msg("show ione")
 
 	if err := s.statCollectionRepo.InsertOne(ctx, stats); err != nil {
 		return err
@@ -78,11 +84,12 @@ func (s *StatCollectionService) GetSignalStatFromDB(ctx context.Context) error {
 }
 
 func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []models.RSSIDetailStatModel {
+	log.Debug().Msg("show1.5")
 	var result []models.RSSIDetailStatModel
 
 	var rssi = stat.RSSIInfo
 	timeStampMap := make(map[time.Time][]float64)
-
+	log.Debug().Msg("show2")
 	for _, e := range rssi {
 		if apName, ok := apMap[e.MacAddress]; ok {
 			for i, j := range e.CreatedAt {
@@ -95,6 +102,8 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 			}
 		}
 	}
+	log.Debug().Msg("show2.5")
+	log.Debug().Any("time_stamp_map_show", timeStampMap)
 
 	for j, eachRSSI := range timeStampMap {
 		var element models.RSSIDetailStatModel
@@ -105,6 +114,7 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 		element.CreatedAt = j
 		result = append(result, element)
 	}
+	log.Debug().Msg("show3")
 
 	return result
 }

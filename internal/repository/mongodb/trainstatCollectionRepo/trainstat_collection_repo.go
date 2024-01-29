@@ -44,7 +44,10 @@ func (r *TrainDataCollectionRepo) InsertOne(ctx context.Context, document models
 }
 
 func (r *TrainDataCollectionRepo) InsertMany(ctx context.Context, documents []models.RSSIDetailStatModel) error {
+	log.Debug().Any("insert_many_show", documents)
+
 	if len(documents) == 0 {
+		log.Debug().Msg("No documents to insert")
 		return nil // No documents to insert
 	}
 
@@ -54,13 +57,17 @@ func (r *TrainDataCollectionRepo) InsertMany(ctx context.Context, documents []mo
 		bsonDocuments = append(bsonDocuments, doc)
 	}
 
+	log.Debug().Msgf("Inserting %d documents", len(bsonDocuments))
+
 	// Use InsertMany to insert multiple documents
-	_, err := r.trainstatCollection.InsertMany(ctx, bsonDocuments)
+	result, err := r.trainstatCollection.InsertMany(ctx, bsonDocuments)
 	if err != nil {
 		log.Error().Err(err).Msg("Error inserting documents into the database")
 		return err
 	}
 
-	log.Debug().Msg("Appended stats to the database")
+	// Log the number of documents inserted
+	log.Debug().Msgf("Inserted %d documents successfully", len(result.InsertedIDs))
+
 	return nil
 }
