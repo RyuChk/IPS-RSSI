@@ -45,26 +45,31 @@ func (r *TrainDataCollectionRepo) InsertOne(ctx context.Context, document models
 
 func (r *TrainDataCollectionRepo) InsertMany(ctx context.Context, documents []models.RSSIDetailStatModel) error {
 	log.Debug().Any("insert_many_show", documents)
+	log.Debug().Msg("show 3 new")
 
 	if len(documents) == 0 {
 		log.Debug().Msg("No documents to insert")
 		return nil // No documents to insert
 	}
-
+	log.Debug().Msg("show 3 new1")
 	// Convert RSSIDetailStatModel documents to BSON documents
 	var bsonDocuments []interface{}
 	for _, doc := range documents {
 		bsonDocuments = append(bsonDocuments, doc)
 	}
+	log.Debug().Msg("show 3 new2")
+	log.Debug().Msgf("Inserting %d documents", len(bsonDocuments))
 
 	log.Debug().Msgf("Inserting %d documents", len(bsonDocuments))
 
 	// Use InsertMany to insert multiple documents
 	result, err := r.trainstatCollection.InsertMany(ctx, bsonDocuments)
+	log.Debug().Msg("show 3 new2.5")
 	if err != nil {
 		log.Error().Err(err).Msg("Error inserting documents into the database")
 		return err
 	}
+	log.Debug().Msg("show 3 new3")
 
 	// Log the number of documents inserted
 	log.Debug().Msgf("Inserted %d documents successfully", len(result.InsertedIDs))

@@ -81,6 +81,7 @@ func (r *ApCollectionRepo) IsExpectedApExisted(ctx context.Context, request *rss
 
 func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]string, error) {
 	// Build the filter to match names starting with "AP"
+	log.Debug().Msg("show getting valid ap")
 	filter := bson.M{
 		"name": bson.M{
 			"$regex": "^AP",
@@ -111,9 +112,9 @@ func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]strin
 	resultMap := make(map[string]string)
 
 	// Populate the map with mac_address as key and AP name as value
-	// for _, ap := range aps {
-	// 	resultMap[ap.MacAddress] = ap.Name
-	// }
+	for _, ap := range aps {
+		resultMap[ap.MacAddress] = ap.Name
+	}
 
 	return resultMap, nil
 }

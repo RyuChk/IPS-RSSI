@@ -92,8 +92,10 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 	log.Debug().Msg("show2")
 	for _, e := range rssi {
 		if apName, ok := apMap[e.MacAddress]; ok {
+			log.Debug().Msg("show adding matched ap")
 			for i, j := range e.CreatedAt {
 				if _, ok := timeStampMap[j]; !ok {
+					log.Debug().Msg("show adding new time stamp")
 					timeStampMap[j] = makeRSSIArray(apMap)
 				}
 				if apIndex, exists := findAPIndex(apMap, apName); exists {
