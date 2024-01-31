@@ -55,6 +55,7 @@ func (r *TrainDataCollectionRepo) InsertMany(ctx context.Context, documents []mo
 	// Convert RSSIDetailStatModel documents to BSON documents
 	var bsonDocuments []interface{}
 	for _, doc := range documents {
+		log.Debug().Msg("show appending doc")
 		bsonDocuments = append(bsonDocuments, doc)
 	}
 	log.Debug().Msg("show 3 new2")
@@ -66,6 +67,7 @@ func (r *TrainDataCollectionRepo) InsertMany(ctx context.Context, documents []mo
 	result, err := r.trainstatCollection.InsertMany(ctx, bsonDocuments)
 	log.Debug().Msg("show 3 new2.5")
 	if err != nil {
+		log.Debug().Msg("show err insert doc")
 		log.Error().Err(err).Msg("Error inserting documents into the database")
 		return err
 	}

@@ -43,7 +43,7 @@ func (s *StatCollectionService) AddSignalStatToDB(ctx context.Context, stats mod
 	//convert to new struture
 	apMap, err := s.apCollectionRepo.GetValidAPsMap(context.Background())
 	if err != nil {
-
+		log.Debug().Msg("show err getting ap map")
 	}
 
 	log.Debug().Msg("show1")
@@ -91,6 +91,7 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 	timeStampMap := make(map[time.Time][]float64)
 	log.Debug().Msg("show2")
 	for _, e := range rssi {
+		log.Debug().Msg("show lopping rssi")
 		if apName, ok := apMap[e.MacAddress]; ok {
 			log.Debug().Msg("show adding matched ap")
 			for i, j := range e.CreatedAt {
@@ -99,6 +100,7 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 					timeStampMap[j] = makeRSSIArray(apMap)
 				}
 				if apIndex, exists := findAPIndex(apMap, apName); exists {
+					log.Debug().Msg("show adding new existed time stamp")
 					timeStampMap[j][apIndex] = e.Strength[i]
 				}
 			}
@@ -108,6 +110,7 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 	log.Debug().Any("time_stamp_map_show", timeStampMap)
 
 	for j, eachRSSI := range timeStampMap {
+		log.Debug().Msg("show2.7 adding rssi timeStamp")
 		var element models.RSSIDetailStatModel
 		element.RSSI = eachRSSI
 		element.Model = stat.DeviceInfo.Models

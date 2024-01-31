@@ -96,6 +96,7 @@ func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]strin
 	// Execute the find operation to get matching records and sort them
 	cursor, err := r.apCollection.Find(ctx, filter, options.Find().SetSort(sort))
 	if err != nil {
+		log.Debug().Msg("show err apdb1")
 		log.Error().Err(err).Msg("Error retrieving valid APs")
 		return nil, err
 	}
@@ -104,6 +105,7 @@ func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]strin
 	// Decode the results into a slice of YourAPStruct
 	var aps []rssiv1.RegisterApRequest
 	if err := cursor.All(ctx, &aps); err != nil {
+		log.Debug().Msg("show err apdb2")
 		log.Error().Err(err).Msg("Error decoding APs")
 		return nil, err
 	}
@@ -113,6 +115,7 @@ func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]strin
 
 	// Populate the map with mac_address as key and AP name as value
 	for _, ap := range aps {
+		log.Debug().Msg("show adding map ap")
 		resultMap[ap.MacAddress] = ap.Name
 	}
 
