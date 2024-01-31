@@ -107,7 +107,15 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 					log.Debug().Msg("show adding new time stamp")
 					timeStampMap[j] = makeRSSIArray(apMap)
 				}
-				if apIndex, exists := findAPIndex(apMap, apName); exists {
+				// if apIndex, exists := findAPIndex(apMap, apName); exists {
+				// 	logIndex := fmt.Sprintf("show AP Index as string: %v", apIndex)
+				// 	log.Debug().Msg(logIndex)
+				// 	log.Debug().Msg("show adding new existed time stamp")
+				// 	timeStampMap[j][apIndex] = e.Strength[i]
+				// }
+				if apIndex, exists := autoFindAPIndex(apName); exists {
+					logIndex := fmt.Sprintf("show AP Index as string: %v", apIndex)
+					log.Debug().Msg(logIndex)
 					log.Debug().Msg("show adding new existed time stamp")
 					timeStampMap[j][apIndex] = e.Strength[i]
 				}
@@ -115,12 +123,16 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 		}
 	}
 	log.Debug().Msg("show2.5")
-	log.Debug().Any("time_stamp_map_show", timeStampMap)
+	logStampMap := fmt.Sprintf("show FULL timestamp map as string: %v", timeStampMap)
+	log.Debug().Msg(logStampMap)
 
 	for j, eachRSSI := range timeStampMap {
 		log.Debug().Msg("show2.7 adding rssi timeStamp")
 		var element models.RSSIDetailStatModel
 		element.RSSI = eachRSSI
+		element.X = float32(stat.Position.X)
+		element.Y = float32(stat.Position.Y)
+		element.Z = float32(stat.Position.Z)
 		element.Model = stat.DeviceInfo.Models
 		element.PollingRate = stat.PollingRate
 		element.Stage = stat.Stage
@@ -200,4 +212,21 @@ func findAPIndex(apMap map[string]string, apName string) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+func autoFindAPIndex(apName string) (int, bool) {
+	numStr := ""
+	for _, char := range apName {
+		if char >= '0' && char <= '9' {
+			numStr += string(char)
+		}
+	}
+
+	// Convert the numeric string to an integer
+	num, err := strconv.Atoi(numStr)
+	if err != nil {
+		return -1, false
+	}
+
+	return num, true
 }
