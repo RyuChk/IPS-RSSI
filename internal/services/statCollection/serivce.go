@@ -228,5 +228,5 @@ func autoFindAPIndex(apName string) (int, bool) {
 		return -1, false
 	}
 
-	return num, true
+	return num - 1, true
 }
