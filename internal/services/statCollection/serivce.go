@@ -85,6 +85,7 @@ func (s *StatCollectionService) GetSignalStatFromDB(ctx context.Context) error {
 }
 
 func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []models.RSSIDetailStatModel {
+	log.Debug().Msg("show ver1")
 	log.Debug().Msg("show1.5")
 	var result []models.RSSIDetailStatModel
 	logMap := fmt.Sprintf("show Map as string: %v", apMap)

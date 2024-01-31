@@ -116,7 +116,11 @@ func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]strin
 	// Populate the map with mac_address as key and AP name as value
 	for _, ap := range aps {
 		log.Debug().Msg("show adding map ap")
+		logAp := fmt.Sprintf("show ap as string: %v", ap)
+		log.Debug().Msg(logAp)
 		resultMap[ap.MacAddress] = ap.Name
+		logResMap := fmt.Sprintf("show ResMap as string: %v", resultMap)
+		log.Debug().Msg(logResMap)
 	}
 
 	return resultMap, nil
