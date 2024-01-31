@@ -48,7 +48,7 @@ func (r *TrainDataCollectionRepo) InsertMany(ctx context.Context, documents []mo
 	log.Debug().Msg("show 3 new")
 
 	if len(documents) == 0 {
-		log.Debug().Msg("No documents to insert")
+		log.Debug().Msg("show No documents to insert")
 		return nil // No documents to insert
 	}
 	log.Debug().Msg("show 3 new1")

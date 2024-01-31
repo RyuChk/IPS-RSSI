@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
@@ -91,8 +92,8 @@ func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []mode
 	timeStampMap := make(map[time.Time][]float64)
 	log.Debug().Msg("show2")
 	for _, e := range rssi {
-		log.Debug().Msg("show lopping rssi")
-		if apName, ok := apMap[e.MacAddress]; ok {
+		log.Debug().Msg("show looping rssi")
+		if apName, ok := apMap[strings.ToLower(e.MacAddress)]; ok {
 			log.Debug().Msg("show adding matched ap")
 			for i, j := range e.CreatedAt {
 				if _, ok := timeStampMap[j]; !ok {
