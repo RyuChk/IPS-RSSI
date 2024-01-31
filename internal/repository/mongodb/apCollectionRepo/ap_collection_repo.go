@@ -7,6 +7,7 @@ import (
 
 	wiremongo "git.cie.com/ips/wire-provider/mongodb"
 	//"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
+	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
 	rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -103,7 +104,8 @@ func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]strin
 	defer cursor.Close(ctx)
 
 	// Decode the results into a slice of YourAPStruct
-	var aps []rssiv1.RegisterApRequest
+	//var aps []rssiv1.RegisterApRequest
+	var aps []models.AccessPoint
 	if err := cursor.All(ctx, &aps); err != nil {
 		log.Debug().Msg("show err apdb2")
 		log.Error().Err(err).Msg("Error decoding APs")

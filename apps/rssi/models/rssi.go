@@ -22,6 +22,7 @@ type DeviceInfo struct {
 }
 
 type AccessPoint struct {
+	Name       string `bson:"name"`
 	SSID       string `bson:"ssid"`        //APs SSID
 	MacAddress string `bson:"mac_address"` // MAC Address of APs
 }
