@@ -87,12 +87,18 @@ func (s *StatCollectionService) GetSignalStatFromDB(ctx context.Context) error {
 func mapRSSIStatModel(stat models.RSSIStatModel, apMap map[string]string) []models.RSSIDetailStatModel {
 	log.Debug().Msg("show1.5")
 	var result []models.RSSIDetailStatModel
-
+	logMap := fmt.Sprintf("show Map as string: %v", apMap)
+	log.Debug().Msg(logMap)
 	var rssi = stat.RSSIInfo
 	timeStampMap := make(map[time.Time][]float64)
 	log.Debug().Msg("show2")
+
+	logRSSI := fmt.Sprintf("show RSSI as string: %v", rssi)
+	log.Debug().Msg(logRSSI)
 	for _, e := range rssi {
 		log.Debug().Msg("show looping rssi")
+		logMac := fmt.Sprintf("show MAC from rssi as string: %v", e.MacAddress)
+		log.Debug().Msg(logMac)
 		if apName, ok := apMap[strings.ToLower(e.MacAddress)]; ok {
 			log.Debug().Msg("show adding matched ap")
 			for i, j := range e.CreatedAt {
