@@ -2,15 +2,12 @@ package apcollectionrepo
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	wiremongo "git.cie.com/ips/wire-provider/mongodb"
 	//"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
 	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
-	rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
+	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb"
 	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -20,9 +17,9 @@ import (
 const apCollectionName = "valid-ap-collection"
 
 type Repository interface {
-	InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error
-	IsExpectedApExisted(ctx context.Context, request *rssiv1.GetCoordinateRequest) (bool, error)
-	GetValidAPsMap(ctx context.Context) (map[string]string, error)
+	InsertOne(ctx context.Context, request models.AP) error
+	FindOne(ctx context.Context, filter mongodb.Filter) (models.AP, error)
+	Find(ctx context.Context, filter mongodb.Filter) (*[]models.AP, error)
 }
 
 type ApCollectionRepo struct {
@@ -35,18 +32,8 @@ func ProvideApCollectionRepo(conn wiremongo.Connection) Repository {
 	}
 }
 
-func (r *ApCollectionRepo) InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error {
-
-	bson := bson.M{
-		"name":        request.Name,
-		"ssid":        request.Ssid,
-		"mac_address": request.MacAddress,
-	}
-	fmt.Println("mybson: ")
-	fmt.Println(bson)
-	log.Debug().Any("RSSIApModel", bson).Msg("Inserting into db")
-
-	_, err := r.apCollection.InsertOne(ctx, bson)
+func (r *ApCollectionRepo) InsertOne(ctx context.Context, AP models.AP) error {
+	_, err := r.apCollection.InsertOne(ctx, AP)
 	if err != nil {
 		return err
 	}
@@ -54,76 +41,26 @@ func (r *ApCollectionRepo) InsertOne(ctx context.Context, request *rssiv1.Regist
 	return nil
 }
 
-// TODO add get valid-ap
-func (r *ApCollectionRepo) IsExpectedApExisted(ctx context.Context, request *rssiv1.GetCoordinateRequest) (bool, error) {
-	// Build the filter based on the SSID and MacAddress in the request
-	filter := bson.M{
-		"ssid":        request.Signals[0].Ssid,
-		"mac_address": request.Signals[0].MacAddress,
+func (r *ApCollectionRepo) FindOne(ctx context.Context, filter mongodb.Filter) (models.AP, error) {
+	result := models.AP{}
+	err := r.apCollection.FindOne(ctx, filter, options.FindOne()).Decode(&result)
+	if err != nil {
+		return result, nil
 	}
 
-	// Execute the find operation to check if a matching record exists
-	result := r.apCollection.FindOne(ctx, filter)
-
-	// Check for errors
-	if result.Err() != nil {
-		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
-			// No matching document found
-			return false, nil
-		}
-		// Other error occurred
-		log.Error().Err(result.Err()).Msg("Error checking for existing AP")
-		return false, result.Err()
-	}
-
-	// Matching document found
-	return true, nil
+	return result, nil
 }
 
-func (r *ApCollectionRepo) GetValidAPsMap(ctx context.Context) (map[string]string, error) {
-	// Build the filter to match names starting with "AP"
-	log.Debug().Msg("show getting valid ap")
-	filter := bson.M{
-		"name": bson.M{
-			"$regex": "^AP",
-		},
-	}
+func (r *ApCollectionRepo) Find(ctx context.Context, filter mongodb.Filter) (*[]models.AP, error) {
+	result := &[]models.AP{}
 
-	// Specify the sorting criteria
-	sort := bson.D{
-		{"name", 1}, // Sort by name in ascending order
-	}
-
-	// Execute the find operation to get matching records and sort them
-	cursor, err := r.apCollection.Find(ctx, filter, options.Find().SetSort(sort))
+	curr, err := r.apCollection.Find(ctx, filter, options.Find())
 	if err != nil {
-		log.Debug().Msg("show err apdb1")
-		log.Error().Err(err).Msg("Error retrieving valid APs")
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	// Decode the results into a slice of YourAPStruct
-	//var aps []rssiv1.RegisterApRequest
-	var aps []models.AccessPoint
-	if err := cursor.All(ctx, &aps); err != nil {
-		log.Debug().Msg("show err apdb2")
-		log.Error().Err(err).Msg("Error decoding APs")
 		return nil, err
 	}
 
-	// Create a map to store the result
-	resultMap := make(map[string]string)
-
-	// Populate the map with mac_address as key and AP name as value
-	for _, ap := range aps {
-		log.Debug().Msg("show adding map ap")
-		logAp := fmt.Sprintf("show ap as string: %v", ap)
-		log.Debug().Msg(logAp)
-		resultMap[ap.MacAddress] = ap.Name
-		logResMap := fmt.Sprintf("show ResMap as string: %v", resultMap)
-		log.Debug().Msg(logResMap)
+	if err := curr.All(ctx, result); err != nil {
+		return nil, err
 	}
-
-	return resultMap, nil
+	return result, nil
 }

@@ -24,7 +24,9 @@ type MinioConfig struct {
 }
 
 type StatCollectionServiceConfig struct {
-	APsCount int `envconfig:"STAT_COLLECTION_AP_NUMBERS, required"`
+	APsCount                 int     `envconfig:"STAT_COLLECTION_AP_NUMBERS, required"`
+	OutlineOffset            float64 `envconfig:"STAT_COLLECTION_OUTLINED_OFFSET" default:"13.0"`
+	RSSIStrengthDefaultValue float64 `envconfig:"STAT_COLLECTION_RSSI_DEFAULT_VALUE" default:"100"`
 }
 
 type ApCollectionServiceConfig struct {

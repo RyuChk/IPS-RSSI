@@ -12,6 +12,7 @@ import (
 	"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/server"
 	"github.com/ZecretBone/ips-rssi-service/internal/config"
 	"github.com/ZecretBone/ips-rssi-service/internal/di"
+	"github.com/ZecretBone/ips-rssi-service/internal/repository/cache"
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb"
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/apCollectionRepo"
 	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb/statCollectionRepo"
@@ -24,6 +25,8 @@ import (
 // Injectors from di.go:
 
 func InitializeContainer() (*Container, func(), error) {
+	cacheConfig := config.ProvideCacheConfig()
+	service := cache.ProvideCacheService(cacheConfig)
 	mongodbConfig := config.ProvideMongoxConfig()
 	connection, cleanup, err := mongodb.ProvideMongoDBService(mongodbConfig)
 	if err != nil {
@@ -33,8 +36,8 @@ func InitializeContainer() (*Container, func(), error) {
 	statcollectionrepoRepository := statcollectionrepo.ProvideStatCollectionRepo(connection)
 	trainstatcollectionrepoRepository := trainstatcollectionrepo.ProvideTrainStatCollectionRepo(connection)
 	statCollectionServiceConfig := config.ProvideStatCollectionServiceConfig()
-	service := statcollection.ProvideStatCollectionService(repository, statcollectionrepoRepository, trainstatcollectionrepoRepository, statCollectionServiceConfig)
-	statCollectionServiceServer := handler.ProvideStatServer(service)
+	statcollectionService := statcollection.ProvideStatCollectionService(service, repository, statcollectionrepoRepository, trainstatcollectionrepoRepository, statCollectionServiceConfig)
+	statCollectionServiceServer := handler.ProvideStatServer(statcollectionService)
 	apCollectionServiceConfig := config.ProvideApCollectionServiceConfig()
 	rssicollectionService := rssicollection.ProvideRssiCollectionService(repository, apCollectionServiceConfig)
 	coordinateCollectionServiceServer := handler.ProvideRssiServer(rssicollectionService)

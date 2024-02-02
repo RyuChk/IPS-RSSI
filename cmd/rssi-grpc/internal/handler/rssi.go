@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	//"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/internal/mapper"
+	"github.com/ZecretBone/ips-rssi-service/cmd/rssi-grpc/internal/mapper"
 	"github.com/ZecretBone/ips-rssi-service/internal/errorx"
 	rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
 	shared_rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/shared/rssi/v1"
@@ -57,13 +58,7 @@ func (s *RssiV1Impl) GetCoordinate(ctx context.Context, req *rssiv1.GetCoordinat
 }
 
 func (s *RssiV1Impl) RegisterAp(ctx context.Context, req *rssiv1.RegisterApRequest) (*rssiv1.RegisterApResponse, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, errorx.NewAPIError(http.StatusBadRequest, "no header were found")
-	}
-	log.Debug().Any("header", md.Get("x-device-id"))
-
-	if err := s.rssiCollectionService.RegisterNewAp(ctx, req); err != nil {
+	if err := s.rssiCollectionService.RegisterNewAp(ctx, mapper.ToAPModel(req)); err != nil {
 		return nil, errorx.NewAPIError(http.StatusBadRequest, err.Error())
 	}
 	return &rssiv1.RegisterApResponse{}, nil

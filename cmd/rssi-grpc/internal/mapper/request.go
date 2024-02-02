@@ -59,3 +59,11 @@ func ToRSSIModel(req *v1.GetCoordinateRequest) []models.RSSI {
 
 	return rssiModel
 }
+
+func ToAPModel(req *v1.RegisterApRequest) models.AP {
+	return models.AP{
+		SSID:       req.Ssid,
+		MacAddress: req.MacAddress,
+		Name:       req.Name,
+	}
+}
