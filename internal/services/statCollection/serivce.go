@@ -41,8 +41,6 @@ func ProvideStatCollectionService(localCache cache.Service, apCollectionRepo apc
 }
 
 func (s *StatCollectionService) AddSignalStatToDB(ctx context.Context, stats models.RSSIStatModel) error {
-	stats.CaculateAverageStrength()
-
 	rssiNewModel, err := s.RSSIDataProcessing(ctx, stats)
 	if err != nil {
 		return err
