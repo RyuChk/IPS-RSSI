@@ -29,9 +29,20 @@ func (s *StatV1Impl) CollectData(ctx context.Context, req *statv1.CollectDataReq
 }
 
 func (s *StatV1Impl) GetStatData(ctx context.Context, req *statv1.GetStatDataRequest) (*statv1.GetStatDataResponse, error) {
-
 	if err := s.statCollectionService.GetSignalStatFromDB(ctx); err != nil {
 		return nil, errorx.NewAPIError(http.StatusBadRequest, err.Error())
 	}
 	return &statv1.GetStatDataResponse{}, nil
+}
+
+func (s *StatV1Impl) ReDoDataProcessing(ctx context.Context, req *statv1.ReDoDataProcessingRequest) (*statv1.ReDoDataProcessingResponse, error) {
+	result, err := s.statCollectionService.DoDataProcessingFromTimeStamp(ctx, req.StartAt.AsTime(), req.EndAt.AsTime())
+	if err != nil {
+		return nil, err
+	}
+
+	return &statv1.ReDoDataProcessingResponse{
+		TotalDataProcessed: int32(result.TotalDataProcessed),
+		TotalRowAdded:      int32(result.TotalRowAdded),
+	}, nil
 }

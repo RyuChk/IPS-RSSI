@@ -8,7 +8,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	rssiv1 "github.com/ZecretBone/ips-rssi-service/internal/gen/proto/ips/rssi/v1"
+	models "github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
+	mongodb "github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,23 +36,38 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// GetValidAPsMap mocks base method.
-func (m *MockRepository) GetValidAPsMap(ctx context.Context) (map[string]string, error) {
+// Find mocks base method.
+func (m *MockRepository) Find(ctx context.Context, filter mongodb.Filter) (*[]models.AP, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetValidAPsMap", ctx)
-	ret0, _ := ret[0].(map[string]string)
+	ret := m.ctrl.Call(m, "Find", ctx, filter)
+	ret0, _ := ret[0].(*[]models.AP)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetValidAPsMap indicates an expected call of GetValidAPsMap.
-func (mr *MockRepositoryMockRecorder) GetValidAPsMap(ctx interface{}) *gomock.Call {
+// Find indicates an expected call of Find.
+func (mr *MockRepositoryMockRecorder) Find(ctx, filter interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidAPsMap", reflect.TypeOf((*MockRepository)(nil).GetValidAPsMap), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockRepository)(nil).Find), ctx, filter)
+}
+
+// FindOne mocks base method.
+func (m *MockRepository) FindOne(ctx context.Context, filter mongodb.Filter) (models.AP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindOne", ctx, filter)
+	ret0, _ := ret[0].(models.AP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindOne indicates an expected call of FindOne.
+func (mr *MockRepositoryMockRecorder) FindOne(ctx, filter interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOne", reflect.TypeOf((*MockRepository)(nil).FindOne), ctx, filter)
 }
 
 // InsertOne mocks base method.
-func (m *MockRepository) InsertOne(ctx context.Context, request *rssiv1.RegisterApRequest) error {
+func (m *MockRepository) InsertOne(ctx context.Context, request models.AP) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InsertOne", ctx, request)
 	ret0, _ := ret[0].(error)
@@ -62,19 +78,4 @@ func (m *MockRepository) InsertOne(ctx context.Context, request *rssiv1.Register
 func (mr *MockRepositoryMockRecorder) InsertOne(ctx, request interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertOne", reflect.TypeOf((*MockRepository)(nil).InsertOne), ctx, request)
-}
-
-// IsExpectedApExisted mocks base method.
-func (m *MockRepository) IsExpectedApExisted(ctx context.Context, request *rssiv1.GetCoordinateRequest) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsExpectedApExisted", ctx, request)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// IsExpectedApExisted indicates an expected call of IsExpectedApExisted.
-func (mr *MockRepositoryMockRecorder) IsExpectedApExisted(ctx, request interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsExpectedApExisted", reflect.TypeOf((*MockRepository)(nil).IsExpectedApExisted), ctx, request)
 }

@@ -29,6 +29,18 @@ type RSSIDetailStatModel struct {
 	Stage       constants.CollectionStage `bson:"collection_stage"`
 }
 
+type ReDoDataProcessingResult struct {
+	TotalDataProcessed int
+	TotalRowAdded      int
+	TotalError         int
+	ErrorData          []ReDoError
+}
+
+type ReDoError struct {
+	Data    RSSIStatModel
+	Message string
+}
+
 func (s *RSSIStatModel) CaculateAverageStrength() {
 	for i, v := range s.RSSIInfo {
 		var t float64

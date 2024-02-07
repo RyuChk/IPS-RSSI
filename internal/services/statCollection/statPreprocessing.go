@@ -63,11 +63,11 @@ func filterOutlined(rssi []models.RSSI, offset float64) []models.RSSI {
 }
 
 func filterAPs(rssi []models.RSSI, registeredAPs *[]models.AP) []models.RSSI {
-	result := make([]models.RSSI, len(rssi))
+	result := make([]models.RSSI, 0)
 	filterMap := rssiInfoToMap(rssi)
-	for i, v := range rssi {
+	for _, v := range *registeredAPs {
 		if data, exist := filterMap[v.MacAddress]; exist {
-			result[i] = data
+			result = append(result, data)
 		}
 	}
 

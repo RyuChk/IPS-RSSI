@@ -5,9 +5,11 @@ import (
 
 	wiremongo "git.cie.com/ips/wire-provider/mongodb"
 	"github.com/ZecretBone/ips-rssi-service/apps/rssi/models"
+	"github.com/ZecretBone/ips-rssi-service/internal/repository/mongodb"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	//"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -17,6 +19,7 @@ const statCollectionName = "signal-stat-collection"
 
 type Repository interface {
 	InsertOne(ctx context.Context, document models.RSSIStatModel) error
+	Find(ctx context.Context, filter mongodb.Filter) ([]models.RSSIStatModel, error)
 	GetRSSIStats(ctx context.Context) ([]models.RSSIStatModel, error)
 	InsertMany(ctx context.Context, documents []models.RSSIDetailStatModel) error
 }
@@ -29,6 +32,22 @@ func ProvideStatCollectionRepo(conn wiremongo.Connection) Repository {
 	return &DataCollectionRepo{
 		statCollection: conn.Database().Collection(statCollectionName),
 	}
+}
+
+func (r *DataCollectionRepo) Find(ctx context.Context, filter mongodb.Filter) ([]models.RSSIStatModel, error) {
+	var result []models.RSSIStatModel
+
+	options := options.Find()
+	curr, err := r.statCollection.Find(ctx, filter, options)
+	if err != nil {
+		return result, err
+	}
+
+	if err := curr.All(ctx, &result); err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
 
 func (r *DataCollectionRepo) InsertOne(ctx context.Context, document models.RSSIStatModel) error {
